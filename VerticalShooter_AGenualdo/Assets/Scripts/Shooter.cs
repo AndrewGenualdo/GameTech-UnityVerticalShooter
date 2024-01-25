@@ -26,7 +26,9 @@ public class Shooter : MonoBehaviour
             //shoot shoot
             GameObject bullet = Instantiate(bulletPrefab, transform.position, transform.rotation);
             Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
-            rb.velocity = Vector3.up;
+            //rb.velocity = new Vector3(gameObject.transform.rotation.x, gameObject.transform.rotation.y, 0);
+            rb.velocity = Vector2.up * 20;
+            Destroy(bullet.gameObject, 2.0f);
         }
     }
 }
