@@ -7,9 +7,11 @@ using UnityEngine;
 public class ArrowSpawner : MonoBehaviour
 {
 
+
+
     [SerializeField] public GameObject arrowPrefab;
 
-    public static ArrowSpawner INSTANCE;
+    public static ArrowSpawner instance;
 
     const int WAIT = 0;
     const int UP = 1;
@@ -23,15 +25,18 @@ public class ArrowSpawner : MonoBehaviour
 
     private Coroutine arrowSpawnerRoutine;
 
-    private int level;
+    public List<GameObject> arrows = new List<GameObject>();
+
+    public int level;
 
     //levels[0] = ms between arrows
     //levels[1] = arrow speed
     private static int[] level1 = { 750, 2, UP, RIGHT, WAIT, LEFT, DOWN, DOWN, WAIT, RIGHT, LEFT, WAIT, DOWN, UP, RIGHT, LEFT, WAIT, WAIT, WAIT };
     private static int[] level2 = { 750, 5, RIGHT, DOWN, UP, LEFT, LEFT, RIGHT, LEFT, UP, DOWN, RIGHT, UP, RIGHT, DOWN, WAIT, WAIT, WAIT };
     private static int[] level3 = { 350, 1, UP, RIGHT, DOWN, LEFT, DOWN, RIGHT, DOWN, LEFT, UP, RIGHT, DOWN, RIGHT, UP, DOWN, RIGHT, UP, LEFT, RIGHT, WAIT, WAIT, WAIT };
+    private static int[] level4 = { 400, 10, RIGHT, LEFT, UP, DOWN, DOWN, RIGHT, UP, LEFT, UP, RIGHT, LEFT, UP, DOWN, DOWN, RIGHT, UP, RIGHT, DOWN, LEFT, WAIT, WAIT};
 
-    private static int[][] levels =  { level1, level2, level3 };
+    public static int[][] levels =  { level1, level2, level3, level4 };
     /*private int[,] levels = new int[,]
         {
             ,
@@ -41,7 +46,7 @@ public class ArrowSpawner : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        INSTANCE = this;
+        instance = this;
         level = 0;
         arrowSpawnerRoutine = StartCoroutine(Co_SpawnArrows(levels[level][0] /1000.0f, levels[level][1]));
     }
@@ -53,9 +58,7 @@ public class ArrowSpawner : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.R))
         {
-            StopCoroutine(arrowSpawnerRoutine);
-            arrowSpawnerRoutine = StartCoroutine(Co_SpawnArrows(levels[level][0] / 1000.0f, levels[level][1]));
-            Debug.Log("Restarted Level: " + level);
+            SwitchToLevel(0);
         } 
         else if(Input.GetKeyDown(KeyCode.RightArrow))
         {
@@ -69,6 +72,10 @@ public class ArrowSpawner : MonoBehaviour
 
     public void SwitchToLevel(int level)
     {
+        if(level == 0)
+        {
+            PlayerManager.instance.health = 10;
+        }
         StopCoroutine(arrowSpawnerRoutine);
         DeleteActiveArrows();
         this.level = level;
@@ -78,19 +85,15 @@ public class ArrowSpawner : MonoBehaviour
 
     public void DeleteActiveArrows()
     {
-        Component[] components = gameObject.GetComponents<Component>();
-        for(int i=0;i<components.Length; i++)
+        foreach (GameObject arrow in arrows)
         {
-            Debug.Log(components[i].gameObject.name);
-            if (components[i].gameObject.name.Contains("Clone"))
-            {
-                Destroy(components[i].gameObject);
-            }
+            Destroy(arrow);
         }
+        arrows.Clear();
     }
 
     [SerializeField]
-    public int distance = 20;
+    public int distance = 10;
 
     void SpawnArrow(int arrowType, int speed)
     {
@@ -160,19 +163,17 @@ public class ArrowSpawner : MonoBehaviour
         spriteRenderer.color = color;
         Rigidbody2D rb = spawnedArrow.GetComponent<Rigidbody2D>();
         rb.velocity = velocity * speed;
-        Destroy(spawnedArrow, 1f/speed*distance*3f);
+        arrows.Add(spawnedArrow);
     }
 
     IEnumerator Co_SpawnArrows(float delay, int speed)
     {
-        while(true)
+        for (int i = 2; i < levels[level].Length; i++)
         {
-            for(int i = 2; i < levels[level].Length; i++) {
-                SpawnArrow(levels[level][i], speed);
-                yield return new WaitForSeconds(delay);
-            }
-            
+            SpawnArrow(levels[level][i], speed);
+            yield return new WaitForSeconds(delay);
         }
-       
+        yield return new WaitForSeconds(distance/speed);
+        SwitchToLevel(level+1);
     }
 }

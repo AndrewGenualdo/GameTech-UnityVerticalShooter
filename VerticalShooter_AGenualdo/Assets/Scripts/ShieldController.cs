@@ -6,8 +6,10 @@ using UnityEngine;
 public class ShieldController : MonoBehaviour
 {
 
+    [SerializeField] public int score;
+
     [SerializeField] public GameObject shieldPrefab;
-    private static ShieldController instance = null;
+    public static ShieldController instance = null;
     private bool isClone;
 
     // Start is called before the first frame update
@@ -123,7 +125,16 @@ public class ShieldController : MonoBehaviour
     {
         if (collision.gameObject.name == "Arrow(Clone)")
         {
+            if(isClone)
+            {
+                Destroy(gameObject);
+            }
             Destroy(collision.gameObject);
+            score++;
+            if(score%10 == 0)
+            {
+                PlayerManager.instance.health++;
+            }
         }
     }
 }

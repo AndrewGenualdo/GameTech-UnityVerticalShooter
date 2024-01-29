@@ -100,7 +100,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   shieldPrefab: {fileID: 8683368453802904968}
-  isClone: 1
   rotation: 0
   distance: 0.3
   speed: 3
