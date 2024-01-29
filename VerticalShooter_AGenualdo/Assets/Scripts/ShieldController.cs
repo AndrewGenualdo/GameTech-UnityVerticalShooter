@@ -5,19 +5,39 @@ using UnityEngine;
 
 public class ShieldController : MonoBehaviour
 {
+
+    [SerializeField] public GameObject shieldPrefab;
+    private static ShieldController instance = null;
+    private bool isClone;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        if(instance == null)
+        {
+            instance = this;
+            isClone = false;
+        } else
+        {
+            setClone();
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.W)) { SetDirection(ROTATION_UP); }
-        else if (Input.GetKeyDown(KeyCode.D)) { SetDirection(ROTATION_RIGHT); }
-        else if(Input.GetKeyDown(KeyCode.S)) { SetDirection(ROTATION_DOWN); }
-        else if (Input.GetKeyDown(KeyCode.A)) { SetDirection(ROTATION_LEFT); }
+        if(!this.isClone)
+        {
+            if (Input.GetKeyDown(KeyCode.W)) { SetDirection(ROTATION_UP); }
+            else if (Input.GetKeyDown(KeyCode.D)) { SetDirection(ROTATION_RIGHT); }
+            else if (Input.GetKeyDown(KeyCode.S)) { SetDirection(ROTATION_DOWN); }
+            else if (Input.GetKeyDown(KeyCode.A)) { SetDirection(ROTATION_LEFT); }
+            if(Input.GetKeyDown(KeyCode.Space)) {
+                    GameObject sc = Instantiate(shieldPrefab);
+                    Destroy(sc, 5.0f);
+                
+            }
+        }
     }
 
     const int ROTATION_UP = 0;
@@ -25,9 +45,14 @@ public class ShieldController : MonoBehaviour
     const int ROTATION_DOWN = 2;
     const int ROTATION_LEFT = 3;
 
-    const float distance = 1.5f;
+    [SerializeField]
+    public int rotation;
+
+    [SerializeField]
+    public float distance = 0.3f;
     void SetDirection(int rotation)
     {
+        this.rotation = rotation;
         switch(rotation)
         {
             case ROTATION_UP:
@@ -54,6 +79,51 @@ public class ShieldController : MonoBehaviour
                     gameObject.transform.position = new Vector3(-distance, 0, 0);
                     break;
                 }
+        }
+    }
+
+    [SerializeField]
+    public float speed;
+
+    public void setClone()
+    {
+        isClone = true;
+        gameObject.transform.position = instance.transform.position;
+        gameObject.transform.rotation = instance.transform.rotation;
+        SetDirection(instance.rotation);
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        switch(instance.rotation)
+        {
+            case ROTATION_UP:
+                {
+                    rb.velocity = Vector2.up * speed;
+                    break;
+                }
+            case ROTATION_RIGHT:
+                {
+                    rb.velocity = Vector2.right * speed;
+                    break;
+                }
+            case ROTATION_DOWN:
+                {
+                    rb.velocity = Vector2.down * speed;
+                    break;
+                }
+            case ROTATION_LEFT:
+                {
+                    rb.velocity = Vector2.left * speed;
+                    break;
+                }
+
+
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.name == "Arrow(Clone)")
+        {
+            Destroy(collision.gameObject);
         }
     }
 }
