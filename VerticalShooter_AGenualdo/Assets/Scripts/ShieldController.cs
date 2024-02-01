@@ -34,11 +34,6 @@ public class ShieldController : MonoBehaviour
             else if (Input.GetKeyDown(KeyCode.D)) { SetDirection(ROTATION_RIGHT); }
             else if (Input.GetKeyDown(KeyCode.S)) { SetDirection(ROTATION_DOWN); }
             else if (Input.GetKeyDown(KeyCode.A)) { SetDirection(ROTATION_LEFT); }
-            if(Input.GetKeyDown(KeyCode.Space)) {
-                    GameObject sc = Instantiate(shieldPrefab);
-                    Destroy(sc, 5.0f);
-                
-            }
         }
     }
 
@@ -54,33 +49,40 @@ public class ShieldController : MonoBehaviour
     public float distance = 0.3f;
     void SetDirection(int rotation)
     {
-        this.rotation = rotation;
-        switch(rotation)
+        if(PlayerManager.instance.health > 0)
         {
-            case ROTATION_UP:
-                {
-                    gameObject.transform.rotation = Quaternion.Euler(0, 0, 0);
-                    gameObject.transform.position = new Vector3(0, distance, 0);
-                    break;
-                }
-            case ROTATION_RIGHT:
-                {
-                    gameObject.transform.rotation = Quaternion.Euler(0, 0, 90);
-                    gameObject.transform.position = new Vector3(distance, 0, 0);
-                    break;
-                }
-            case ROTATION_DOWN:
-                {
-                    gameObject.transform.rotation = Quaternion.Euler(0, 0, 180);
-                    gameObject.transform.position = new Vector3(0, -distance, 0);
-                    break;
-                }
-            case ROTATION_LEFT:
-                {
-                    gameObject.transform.rotation = Quaternion.Euler(0, 0, 270);
-                    gameObject.transform.position = new Vector3(-distance, 0, 0);
-                    break;
-                }
+            this.rotation = rotation;
+            switch (rotation)
+            {
+                case ROTATION_UP:
+                    {
+                        gameObject.transform.rotation = Quaternion.Euler(0, 0, 0);
+                        gameObject.transform.position = new Vector3(0, distance, 0);
+                        break;
+                    }
+                case ROTATION_RIGHT:
+                    {
+                        gameObject.transform.rotation = Quaternion.Euler(0, 0, 90);
+                        gameObject.transform.position = new Vector3(distance, 0, 0);
+                        break;
+                    }
+                case ROTATION_DOWN:
+                    {
+                        gameObject.transform.rotation = Quaternion.Euler(0, 0, 180);
+                        gameObject.transform.position = new Vector3(0, -distance, 0);
+                        break;
+                    }
+                case ROTATION_LEFT:
+                    {
+                        gameObject.transform.rotation = Quaternion.Euler(0, 0, 270);
+                        gameObject.transform.position = new Vector3(-distance, 0, 0);
+                        break;
+                    }
+            }
+            if (!isClone)
+            {
+                GameObject sc = Instantiate(shieldPrefab);
+            }
         }
     }
 
@@ -133,7 +135,7 @@ public class ShieldController : MonoBehaviour
             score++;
             if(score%10 == 0)
             {
-                PlayerManager.instance.health++;
+                PlayerManager.instance.GainHealth();
             }
         }
     }

@@ -1,6 +1,7 @@
 using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Reflection;
 using UnityEngine;
 
@@ -13,17 +14,34 @@ public class ArrowSpawner : MonoBehaviour
 
     public static ArrowSpawner instance;
 
-    const int WAIT = 0;
-    const int UP = 1;
-    const int RIGHT = 2;
-    const int DOWN = 3;
-    const int LEFT = 4;
-    const int REVERSE_UP = 5;
-    const int REVERSE_RIGHT = 6;
-    const int REVERSE_DOWN = 7;
-    const int REVERSE_LEFT = 8;
+    const int WAIT = -1;
+    const int UP = 0;
+    const int RIGHT = 11;
+    const int DOWN = 22;
+    const int LEFT = 33;
+    //SHIFTERS (STARTDIRECTION_ENDDIRECTION)
+    const int UP_UP = 00;
+    const int UP_RIGHT = 01;
+    const int UP_DOWN = 02;
+    const int UP_LEFT = 03;
 
-    private Coroutine arrowSpawnerRoutine;
+    const int RIGHT_UP = 10;
+    const int RIGHT_RIGHT = 11;
+    const int RIGHT_DOWN = 12;
+    const int RIGHT_LEFT = 13;
+
+    const int DOWN_UP = 20;
+    const int DOWN_RIGHT = 21;
+    const int DOWN_DOWN = 22;
+    const int DOWN_LEFT = 23;
+
+    const int LEFT_UP = 30;
+    const int LEFT_RIGHT = 31;
+    const int LEFT_DOWN = 32;
+    const int LEFT_LEFT = 33;
+
+
+    public Coroutine arrowSpawnerRoutine;
 
     public List<GameObject> arrows = new List<GameObject>();
 
@@ -35,6 +53,7 @@ public class ArrowSpawner : MonoBehaviour
     private static int[] level2 = { 750, 5, RIGHT, DOWN, UP, LEFT, LEFT, RIGHT, LEFT, UP, DOWN, RIGHT, UP, RIGHT, DOWN, WAIT, WAIT, WAIT };
     private static int[] level3 = { 350, 1, UP, RIGHT, DOWN, LEFT, DOWN, RIGHT, DOWN, LEFT, UP, RIGHT, DOWN, RIGHT, UP, DOWN, RIGHT, UP, LEFT, RIGHT, WAIT, WAIT, WAIT };
     private static int[] level4 = { 400, 10, RIGHT, LEFT, UP, DOWN, DOWN, RIGHT, UP, LEFT, UP, RIGHT, LEFT, UP, DOWN, DOWN, RIGHT, UP, RIGHT, DOWN, LEFT, WAIT, WAIT};
+    private static int[] level5 = { };
 
     public static int[][] levels =  { level1, level2, level3, level4 };
     /*private int[,] levels = new int[,]
@@ -68,6 +87,35 @@ public class ArrowSpawner : MonoBehaviour
         {
             SwitchToLevel((level + levels.Length - 1) % levels.Length);
         }
+
+        foreach(GameObject arrow in arrows)
+        {
+            if(arrow != null)
+            {
+                Rigidbody2D rb = arrow.GetComponent<Rigidbody2D>();
+                rb.velocity = (-rb.position).normalized * levels[level][1];
+                int direction = levels[level][arrow.GetComponent<ArrowData>().id];
+                double dist = Mathf.Sqrt(Mathf.Pow(rb.position.x, 2) + Mathf.Pow(rb.position.y, 2));
+                int activeDirection;
+                double transition = 0.0;
+                if (dist > this.distance * 2 / 3)
+                {
+                    activeDirection = direction / 10;
+                } else if (dist > this.distance / 3)
+                {
+                    double start = this.distance * 2 / 3;
+                    double end = this.distance / 3;
+                    double length = start - end;
+                    double wayThrough = dist - end;
+                    transition = wayThrough / length;
+                }
+                {
+                    activeDirection = direction % 10;
+                    transition = 1.0;
+                }
+                
+            }
+        }
     }
 
     public void SwitchToLevel(int level)
@@ -79,8 +127,11 @@ public class ArrowSpawner : MonoBehaviour
         StopCoroutine(arrowSpawnerRoutine);
         DeleteActiveArrows();
         this.level = level;
-        arrowSpawnerRoutine = StartCoroutine(Co_SpawnArrows(levels[level][0] / 1000.0f, levels[level][1]));
-        Debug.Log("Switched to Level: " + level);
+        if(level <  levels.Length)
+        {
+            arrowSpawnerRoutine = StartCoroutine(Co_SpawnArrows(levels[level][0] / 1000.0f, levels[level][1]));
+            Debug.Log("Switched to Level: " + level);
+        }
     }
 
     public void DeleteActiveArrows()
@@ -95,13 +146,15 @@ public class ArrowSpawner : MonoBehaviour
     [SerializeField]
     public int distance = 10;
 
-    void SpawnArrow(int arrowType, int speed)
+    void SpawnArrow(int arrowType, int speed, int id)
     {
         //Debug.Log("Sparned New Arrow: Type: "+arrowType+", Speed: "+speed);
         int rotation = 0;
         Vector2Int spawnPos = Vector2Int.zero;
         Vector2 velocity = Vector2.zero;
         Color color = Color.white;
+
+        float timeUntil = distance / speed;
 
         switch(arrowType)
         {
@@ -114,7 +167,7 @@ public class ArrowSpawner : MonoBehaviour
                     spawnPos.y = -distance;
                     rotation = 180;
                     velocity = Vector2.up;
-                    color = Color.red;
+                    color = Color.cyan;
                     break;
                 }
             case RIGHT:
@@ -138,23 +191,7 @@ public class ArrowSpawner : MonoBehaviour
                     spawnPos.x = distance;
                     rotation = 90;
                     velocity = Vector2.left;
-                    color = Color.green;
-                    break;
-                }
-            case REVERSE_UP:
-                {
-                    break;
-                }
-             case REVERSE_RIGHT: 
-                { 
-                    break;
-                }
-             case REVERSE_DOWN:
-                {
-                    break;
-                }
-             case REVERSE_LEFT:
-                {
+                    color = new Color(255, 165, 0); //orange
                     break;
                 }
         }
@@ -163,6 +200,7 @@ public class ArrowSpawner : MonoBehaviour
         spriteRenderer.color = color;
         Rigidbody2D rb = spawnedArrow.GetComponent<Rigidbody2D>();
         rb.velocity = velocity * speed;
+        spawnedArrow.GetComponent<ArrowData>().id = id;
         arrows.Add(spawnedArrow);
     }
 
@@ -170,7 +208,7 @@ public class ArrowSpawner : MonoBehaviour
     {
         for (int i = 2; i < levels[level].Length; i++)
         {
-            SpawnArrow(levels[level][i], speed);
+            SpawnArrow(levels[level][i], speed, i);
             yield return new WaitForSeconds(delay);
         }
         yield return new WaitForSeconds(distance/speed);
