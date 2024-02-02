@@ -1,10 +1,8 @@
 using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Reflection;
 using UnityEngine;
-
 public class ArrowSpawner : MonoBehaviour
 {
 
@@ -14,11 +12,18 @@ public class ArrowSpawner : MonoBehaviour
 
     public static ArrowSpawner instance;
 
-    const int WAIT = -1;
+    const int WAIT = -10;
+
+    const int DIR_UP = 0;
+    const int DIR_RIGHT = 1;
+    const int DIR_DOWN = 2;
+    const int DIR_LEFT = 3;
+
     const int UP = 0;
     const int RIGHT = 11;
     const int DOWN = 22;
     const int LEFT = 33;
+
     //SHIFTERS (STARTDIRECTION_ENDDIRECTION)
     const int UP_UP = 00;
     const int UP_RIGHT = 01;
@@ -49,18 +54,21 @@ public class ArrowSpawner : MonoBehaviour
 
     //levels[0] = ms between arrows
     //levels[1] = arrow speed
-    private static int[] level1 = { 750, 2, UP, RIGHT, WAIT, LEFT, DOWN, DOWN, WAIT, RIGHT, LEFT, WAIT, DOWN, UP, RIGHT, LEFT, WAIT, WAIT, WAIT };
-    private static int[] level2 = { 750, 5, RIGHT, DOWN, UP, LEFT, LEFT, RIGHT, LEFT, UP, DOWN, RIGHT, UP, RIGHT, DOWN, WAIT, WAIT, WAIT };
-    private static int[] level3 = { 350, 1, UP, RIGHT, DOWN, LEFT, DOWN, RIGHT, DOWN, LEFT, UP, RIGHT, DOWN, RIGHT, UP, DOWN, RIGHT, UP, LEFT, RIGHT, WAIT, WAIT, WAIT };
-    private static int[] level4 = { 400, 10, RIGHT, LEFT, UP, DOWN, DOWN, RIGHT, UP, LEFT, UP, RIGHT, LEFT, UP, DOWN, DOWN, RIGHT, UP, RIGHT, DOWN, LEFT, WAIT, WAIT};
-    private static int[] level5 = { };
 
-    public static int[][] levels =  { level1, level2, level3, level4 };
-    /*private int[,] levels = new int[,]
-        {
-            ,
-            
-        };*/
+    //pretty easy introduction level
+    private static int[] level1 = { 750, 2, UP, RIGHT, WAIT, LEFT, DOWN, DOWN, WAIT, RIGHT, LEFT, WAIT, DOWN, UP, RIGHT, LEFT};
+    //Similar but faster (more challenging)
+    private static int[] level2 = { 750, 5, RIGHT, DOWN, UP, LEFT, LEFT, RIGHT, LEFT, UP, DOWN, RIGHT, UP, RIGHT, DOWN};
+    //Exposing the player to a lot of arrows while not in much real danger
+    private static int[] level3 = { 350, 1, UP, RIGHT, DOWN, LEFT, DOWN, RIGHT, DOWN, LEFT, UP, RIGHT, DOWN, RIGHT, UP, DOWN, RIGHT, UP, LEFT, RIGHT, WAIT};
+    //SPEEEED
+    private static int[] level4 = { 400, 10, RIGHT, LEFT, UP, DOWN, DOWN, RIGHT, UP, LEFT, UP, RIGHT, LEFT, UP, DOWN, DOWN, RIGHT, UP, RIGHT, DOWN, LEFT};
+    //introduces the player to "rotating" arrows
+    private static int[] level5 = { 2250, 2, UP_LEFT, RIGHT_LEFT, DOWN_LEFT, WAIT, UP_RIGHT, LEFT_RIGHT, DOWN_RIGHT, WAIT, UP_DOWN, DOWN_UP};
+
+    
+
+    public static int[][] levels =  { level1, level2, level3, level4, level5 };
 
     // Start is called before the first frame update
     void Start()
@@ -70,7 +78,8 @@ public class ArrowSpawner : MonoBehaviour
         arrowSpawnerRoutine = StartCoroutine(Co_SpawnArrows(levels[level][0] /1000.0f, levels[level][1]));
     }
 
-    
+    [SerializeField]
+    public int distance = 10;
 
     // Update is called once per frame
     void Update()
@@ -93,27 +102,22 @@ public class ArrowSpawner : MonoBehaviour
             if(arrow != null)
             {
                 Rigidbody2D rb = arrow.GetComponent<Rigidbody2D>();
+                float dist = Mathf.Sqrt(Mathf.Pow(rb.position.x, 2) + Mathf.Pow(rb.position.y, 2));
                 rb.velocity = (-rb.position).normalized * levels[level][1];
                 int direction = levels[level][arrow.GetComponent<ArrowData>().id];
-                double dist = Mathf.Sqrt(Mathf.Pow(rb.position.x, 2) + Mathf.Pow(rb.position.y, 2));
-                int activeDirection;
-                double transition = 0.0;
-                if (dist > this.distance * 2 / 3)
-                {
-                    activeDirection = direction / 10;
-                } else if (dist > this.distance / 3)
-                {
-                    double start = this.distance * 2 / 3;
-                    double end = this.distance / 3;
-                    double length = start - end;
-                    double wayThrough = dist - end;
-                    transition = wayThrough / length;
-                }
-                {
-                    activeDirection = direction % 10;
-                    transition = 1.0;
-                }
-                
+                int startDir = direction / 10;
+                int endDir = direction % 10;
+                float percent = (distance - dist) / distance;
+                float transitionPercent = (Mathf.Clamp((percent * 9.0f) - 4.0f, -1.0f, 2.0f) + 1.0f) / 3.0f;
+                float degreesToTurn = ((((startDir - endDir) * 90) + 360) % 360) * transitionPercent;
+                float startX = startDir == DIR_RIGHT ? 10 : startDir == DIR_LEFT ? -10 : 0;
+                float startY = startDir == DIR_UP ? 10 : startDir == DIR_DOWN ? -10 : 0;
+                float unrotatedX = (startX - (startX * percent));
+                float unrotatedY = (startY - (startY * percent));
+                float finalX = (unrotatedX * Mathf.Cos(Mathf.Deg2Rad * degreesToTurn)) - (unrotatedY * Mathf.Sin(Mathf.Deg2Rad * degreesToTurn));
+                float finalY = (unrotatedY * Mathf.Cos(Mathf.Deg2Rad * degreesToTurn)) + (unrotatedX * Mathf.Sin(Mathf.Deg2Rad * degreesToTurn));
+                rb.transform.position = new Vector3(finalX, finalY);
+                rb.transform.rotation = Quaternion.Euler(0, 0, degreesToTurn + startDir*90);
             }
         }
     }
@@ -130,7 +134,7 @@ public class ArrowSpawner : MonoBehaviour
         if(level <  levels.Length)
         {
             arrowSpawnerRoutine = StartCoroutine(Co_SpawnArrows(levels[level][0] / 1000.0f, levels[level][1]));
-            Debug.Log("Switched to Level: " + level);
+            Debug.Log("Switched to level: " + level);
         }
     }
 
@@ -143,58 +147,66 @@ public class ArrowSpawner : MonoBehaviour
         arrows.Clear();
     }
 
-    [SerializeField]
-    public int distance = 10;
-
     void SpawnArrow(int arrowType, int speed, int id)
     {
         //Debug.Log("Sparned New Arrow: Type: "+arrowType+", Speed: "+speed);
         int rotation = 0;
         Vector2Int spawnPos = Vector2Int.zero;
         Vector2 velocity = Vector2.zero;
-        Color color = Color.white;
+        Color color = Color.blue;
 
-        float timeUntil = distance / speed;
-
-        switch(arrowType)
+        if(arrowType == WAIT)
         {
-            case WAIT:
-                {
-                    return;
-                }
-            case UP:
+            return;
+        }
+
+        switch(arrowType/10)
+        {
+            case DIR_UP:
                 {
                     spawnPos.y = -distance;
-                    rotation = 180;
-                    velocity = Vector2.up;
-                    color = Color.cyan;
                     break;
                 }
-            case RIGHT:
+            case DIR_RIGHT:
                 {
                     spawnPos.x = -distance;
-                    rotation = 270;
-                    velocity = Vector2.right;
-                    color = Color.magenta;
                     break;
                 }
-            case DOWN:
+            case DIR_DOWN:
                 {
                     spawnPos.y = distance;
-                    rotation = 0;
-                    velocity = Vector2.down;
-                    color = Color.yellow;
                     break;
                 }
-            case LEFT:
+            case DIR_LEFT:
                 {
                     spawnPos.x = distance;
-                    rotation = 90;
-                    velocity = Vector2.left;
-                    color = new Color(255, 165, 0); //orange
                     break;
                 }
         }
+        switch(arrowType%10)
+        {
+            case DIR_UP:
+                {
+                    color = new Color(0.358f, 0.884f, 0.960f); //cyan
+                    break;
+                }
+            case DIR_RIGHT:
+                {
+                    color = new Color(0.476f, 0.358f, 0.960f); //blurple
+                    break;
+                }
+            case DIR_DOWN:
+                {
+                    color = new Color(0.960f, 0.358f, 0.990f); //pink
+                    break;
+                }
+            case DIR_LEFT:
+                {
+                    color = new Color(0.960f, 0.629f, 0.358f); //orange
+                    break;
+                }
+        }
+
         GameObject spawnedArrow = Instantiate(arrowPrefab, new Vector3(spawnPos.x, spawnPos.y), Quaternion.Euler(0, 0, rotation));
         SpriteRenderer spriteRenderer = spawnedArrow.GetComponent<SpriteRenderer>();
         spriteRenderer.color = color;

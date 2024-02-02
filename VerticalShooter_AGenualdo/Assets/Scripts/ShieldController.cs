@@ -6,7 +6,7 @@ using UnityEngine;
 public class ShieldController : MonoBehaviour
 {
 
-    [SerializeField] public int score;
+    [SerializeField] public int score = 0;
 
     [SerializeField] public GameObject shieldPrefab;
     public static ShieldController instance = null;
@@ -125,18 +125,19 @@ public class ShieldController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        
         if (collision.gameObject.name == "Arrow(Clone)")
         {
-            if(isClone)
+            instance.score++;
+            if (instance.score % 10 == 0)
+            {
+                PlayerManager.instance.GainHealth();
+            }
+            if (isClone)
             {
                 Destroy(gameObject);
             }
             Destroy(collision.gameObject);
-            score++;
-            if(score%10 == 0)
-            {
-                PlayerManager.instance.GainHealth();
-            }
         }
     }
 }
