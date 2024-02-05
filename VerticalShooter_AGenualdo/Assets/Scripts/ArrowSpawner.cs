@@ -86,10 +86,35 @@ public class ArrowSpawner : MonoBehaviour
     private static int[] level5 = { 2250, 2, UP_LEFT, RIGHT_LEFT, DOWN_LEFT, WAIT, UP_RIGHT, LEFT_RIGHT, DOWN_RIGHT, WAIT, UP_DOWN, DOWN_UP}; //10 long
 
 
+    //slightly more challenging rotating arrows
+    private static int[] level6 = { 750, 4, RIGHT_UP, LEFT_DOWN, RIGHT_UP, DOWN_RIGHT, DOWN_RIGHT, RIGHT_UP, LEFT_DOWN, UP_LEFT, LEFT_DOWN, RIGHT_UP,
+        LEFT_DOWN, RIGHT_DOWN, LEFT_UP, DOWN_LEFT, RIGHT_DOWN, LEFT_UP, RIGHT, LEFT, RIGHT, 
+        LEFT, LEFT}; //12 long
+
+
+    //harder
+    private static int[] level7 = { 666, 3, RIGHT_UP, RIGHT_DOWN, UP, DOWN, LEFT_RIGHT, RIGHT_LEFT, RIGHT_DOWN, UP_RIGHT, LEFT_UP, DOWN_LEFT}; //10 long
     
+    
+    //harder yet
+    private static int[] level8 = { 666, 4, RIGHT_LEFT, DOWN_UP, UP_LEFT, UP, LEFT_UP, RIGHT, RIGHT_UP, RIGHT_DOWN, DOWN_UP, UP_RIGHT,
+        DOWN, DOWN_RIGHT, LEFT_RIGHT, WAIT, RIGHT_LEFT, RIGHT_UP, WAIT, LEFT_UP, UP, UP_LEFT }; //20 long
 
 
-    public static int[][] levels =  { level1, level2, level3, level4, level5 };
+    //Lots of arrows but rotating now
+    private static int[] level9 = { 325, 1, RIGHT_DOWN, WAIT, UP, DOWN_UP, RIGHT_DOWN, RIGHT, LEFT, LEFT_DOWN, WAIT, RIGHT_LEFT,
+        RIGHT_LEFT, DOWN_RIGHT, UP_RIGHT, WAIT, DOWN, UP_LEFT, RIGHT, DOWN, UP_RIGHT, DOWN_UP,
+        RIGHT_DOWN, LEFT_DOWN}; //22 long
+
+    //final boss
+    private static int[] level10 = { 500, 8, DOWN_RIGHT, LEFT_DOWN, RIGHT_DOWN, LEFT_RIGHT, DOWN_LEFT, LEFT_RIGHT, UP, LEFT_DOWN, WAIT, DOWN_LEFT,
+        UP_LEFT, RIGHT_LEFT, UP_RIGHT, RIGHT_UP, DOWN_UP, UP, RIGHT, RIGHT_LEFT, LEFT_RIGHT, DOWN_RIGHT,
+        LEFT_RIGHT, UP_LEFT, DOWN_UP, UP, RIGHT_LEFT, LEFT_UP, RIGHT_LEFT, LEFT_DOWN, RIGHT_DOWN, DOWN_RIGHT, 
+        LEFT, RIGHT_UP, RIGHT_LEFT, DOWN_LEFT, LEFT_DOWN, UP_LEFT, DOWN_LEFT, LEFT_RIGHT, DOWN, RIGHT_UP, 
+        LEFT_DOWN, LEFT_UP, RIGHT, RIGHT_DOWN, RIGHT_DOWN, DOWN_LEFT, UP_LEFT, LEFT_DOWN, LEFT_UP, RIGHT_LEFT}; //50 long
+
+
+    public static int[][] levels =  { level1, level2, level3, level4, level5, level6, level7, level8, level9, level10 };
 
     // Start is called before the first frame update
     void Start()
