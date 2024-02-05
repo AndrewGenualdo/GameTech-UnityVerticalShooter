@@ -1,8 +1,11 @@
 using JetBrains.Annotations;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Rendering.Universal.Internal;
 public class ArrowSpawner : MonoBehaviour
 {
 
@@ -25,48 +28,66 @@ public class ArrowSpawner : MonoBehaviour
     const int LEFT = 33;
 
     //SHIFTERS (STARTDIRECTION_ENDDIRECTION)
-    const int UP_UP = 00;
-    const int UP_RIGHT = 01;
-    const int UP_DOWN = 02;
-    const int UP_LEFT = 03;
+    const int UP_UP = 00; //1
+    const int UP_RIGHT = 01; //2
+    const int UP_DOWN = 02; //3
+    const int UP_LEFT = 03; //4
 
-    const int RIGHT_UP = 10;
-    const int RIGHT_RIGHT = 11;
-    const int RIGHT_DOWN = 12;
-    const int RIGHT_LEFT = 13;
+    const int RIGHT_UP = 10; //5
+    const int RIGHT_RIGHT = 11; //6
+    const int RIGHT_DOWN = 12; //7
+    const int RIGHT_LEFT = 13; //8
 
-    const int DOWN_UP = 20;
-    const int DOWN_RIGHT = 21;
-    const int DOWN_DOWN = 22;
-    const int DOWN_LEFT = 23;
+    const int DOWN_UP = 20; //9
+    const int DOWN_RIGHT = 21; //10
+    const int DOWN_DOWN = 22; //11
+    const int DOWN_LEFT = 23; //12
 
-    const int LEFT_UP = 30;
-    const int LEFT_RIGHT = 31;
-    const int LEFT_DOWN = 32;
-    const int LEFT_LEFT = 33;
+    const int LEFT_UP = 30; //13
+    const int LEFT_RIGHT = 31; //14
+    const int LEFT_DOWN = 32; //15
+    const int LEFT_LEFT = 33; //16
+
+    //WAIT - 17-20
 
 
     public Coroutine arrowSpawnerRoutine;
 
     public List<GameObject> arrows = new List<GameObject>();
 
+    const float ANIMATION_LENGTH = 1000.0f;
+
     public int level;
 
     //levels[0] = ms between arrows
     //levels[1] = arrow speed
 
-    //pretty easy introduction level
-    private static int[] level1 = { 750, 2, UP, RIGHT, WAIT, LEFT, DOWN, DOWN, WAIT, RIGHT, LEFT, WAIT, DOWN, UP, RIGHT, LEFT};
+    //pretty easy introduction level (konami code lol)
+    private static int[] level1 = { 750, 2, UP, UP, DOWN, DOWN, LEFT, RIGHT, LEFT, RIGHT, WAIT, WAIT, 
+        UP, RIGHT, DOWN, LEFT}; //14 long
+
+
     //Similar but faster (more challenging)
-    private static int[] level2 = { 750, 5, RIGHT, DOWN, UP, LEFT, LEFT, RIGHT, LEFT, UP, DOWN, RIGHT, UP, RIGHT, DOWN};
+    private static int[] level2 = { 750, 5, RIGHT, DOWN, UP, LEFT, LEFT, RIGHT, LEFT, UP, DOWN, RIGHT, 
+        UP, RIGHT, DOWN}; //13 long
+
+
     //Exposing the player to a lot of arrows while not in much real danger
-    private static int[] level3 = { 350, 1, UP, RIGHT, DOWN, LEFT, DOWN, RIGHT, DOWN, LEFT, UP, RIGHT, DOWN, RIGHT, UP, DOWN, RIGHT, UP, LEFT, RIGHT, WAIT};
+    private static int[] level3 = { 350, 1, UP, RIGHT, DOWN, LEFT, DOWN, RIGHT, DOWN, LEFT, UP, RIGHT, 
+        DOWN, RIGHT, UP, DOWN, RIGHT, UP, LEFT, RIGHT, WAIT}; //19 long
+
+
     //SPEEEED
-    private static int[] level4 = { 400, 10, RIGHT, LEFT, UP, DOWN, DOWN, RIGHT, UP, LEFT, UP, RIGHT, LEFT, UP, DOWN, DOWN, RIGHT, UP, RIGHT, DOWN, LEFT};
+    private static int[] level4 = { 450, 10, RIGHT, LEFT, UP, DOWN, DOWN, RIGHT, UP, LEFT, UP, RIGHT,
+        LEFT, UP, DOWN, DOWN, RIGHT, UP, RIGHT, DOWN, LEFT}; //19 long
+
+
     //introduces the player to "rotating" arrows
-    private static int[] level5 = { 2250, 2, UP_LEFT, RIGHT_LEFT, DOWN_LEFT, WAIT, UP_RIGHT, LEFT_RIGHT, DOWN_RIGHT, WAIT, UP_DOWN, DOWN_UP};
+    private static int[] level5 = { 2250, 2, UP_LEFT, RIGHT_LEFT, DOWN_LEFT, WAIT, UP_RIGHT, LEFT_RIGHT, DOWN_RIGHT, WAIT, UP_DOWN, DOWN_UP}; //10 long
+
 
     
+
 
     public static int[][] levels =  { level1, level2, level3, level4, level5 };
 
@@ -75,7 +96,7 @@ public class ArrowSpawner : MonoBehaviour
     {
         instance = this;
         level = 0;
-        arrowSpawnerRoutine = StartCoroutine(Co_SpawnArrows(levels[level][0] /1000.0f, levels[level][1]));
+        //arrowSpawnerRoutine = StartCoroutine(Co_SpawnArrows(levels[level][0] /1000.0f, levels[level][1]));
     }
 
     [SerializeField]
@@ -84,7 +105,7 @@ public class ArrowSpawner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.R))
+        if(Input.GetKeyDown(KeyCode.Space))
         {
             SwitchToLevel(0);
         } 
@@ -102,22 +123,29 @@ public class ArrowSpawner : MonoBehaviour
             if(arrow != null)
             {
                 Rigidbody2D rb = arrow.GetComponent<Rigidbody2D>();
-                float dist = Mathf.Sqrt(Mathf.Pow(rb.position.x, 2) + Mathf.Pow(rb.position.y, 2));
-                rb.velocity = (-rb.position).normalized * levels[level][1];
-                int direction = levels[level][arrow.GetComponent<ArrowData>().id];
-                int startDir = direction / 10;
-                int endDir = direction % 10;
-                float percent = (distance - dist) / distance;
-                float transitionPercent = (Mathf.Clamp((percent * 9.0f) - 4.0f, -1.0f, 2.0f) + 1.0f) / 3.0f;
-                float degreesToTurn = ((((startDir - endDir) * 90) + 360) % 360) * transitionPercent;
-                float startX = startDir == DIR_RIGHT ? 10 : startDir == DIR_LEFT ? -10 : 0;
-                float startY = startDir == DIR_UP ? 10 : startDir == DIR_DOWN ? -10 : 0;
-                float unrotatedX = (startX - (startX * percent));
-                float unrotatedY = (startY - (startY * percent));
-                float finalX = (unrotatedX * Mathf.Cos(Mathf.Deg2Rad * degreesToTurn)) - (unrotatedY * Mathf.Sin(Mathf.Deg2Rad * degreesToTurn));
-                float finalY = (unrotatedY * Mathf.Cos(Mathf.Deg2Rad * degreesToTurn)) + (unrotatedX * Mathf.Sin(Mathf.Deg2Rad * degreesToTurn));
-                rb.transform.position = new Vector3(finalX, finalY);
-                rb.transform.rotation = Quaternion.Euler(0, 0, degreesToTurn + startDir*90);
+                if (Environment.TickCount - arrow.GetComponent<ArrowData>().spawnTime > ANIMATION_LENGTH)
+                {
+                    float dist = Mathf.Sqrt(Mathf.Pow(rb.position.x, 2) + Mathf.Pow(rb.position.y, 2));
+                    rb.velocity = (-rb.position).normalized * levels[level][1];
+                    int direction = levels[level][arrow.GetComponent<ArrowData>().id];
+                    int startDir = direction / 10;
+                    int endDir = direction % 10;
+                    float percent = (distance - dist) / distance;
+                    float transitionPercent = (Mathf.Clamp((percent * 9.0f) - 4.0f, -1.0f, 2.0f) + 1.0f) / 3.0f;
+                    float degreesToTurn = ((((startDir - endDir) * 90) + 360) % 360) * transitionPercent;
+                    float startX = startDir == DIR_RIGHT ? 10 : startDir == DIR_LEFT ? -10 : 0;
+                    float startY = startDir == DIR_UP ? 10 : startDir == DIR_DOWN ? -10 : 0;
+                    float unrotatedX = (startX - (startX * percent));
+                    float unrotatedY = (startY - (startY * percent));
+                    float finalX = (unrotatedX * Mathf.Cos(Mathf.Deg2Rad * degreesToTurn)) - (unrotatedY * Mathf.Sin(Mathf.Deg2Rad * degreesToTurn));
+                    float finalY = (unrotatedY * Mathf.Cos(Mathf.Deg2Rad * degreesToTurn)) + (unrotatedX * Mathf.Sin(Mathf.Deg2Rad * degreesToTurn));
+                    rb.transform.position = new Vector3(finalX, finalY);
+                    rb.transform.rotation = Quaternion.Euler(0, 0, degreesToTurn + startDir * 90);
+                }
+                else
+                {
+                    rb.velocity = Vector3.zero;
+                }
             }
         }
     }
@@ -126,9 +154,17 @@ public class ArrowSpawner : MonoBehaviour
     {
         if(level == 0)
         {
+            PlayerManager.gameStarted = true;
             PlayerManager.instance.health = 10;
+        } 
+        else
+        {
+            SoundManager.INSTANCE.PlaySound(SoundManager.NEXT_LEVEL, 0.5f);
         }
-        StopCoroutine(arrowSpawnerRoutine);
+        if(arrowSpawnerRoutine != null)
+        {
+            StopCoroutine(arrowSpawnerRoutine);
+        }
         DeleteActiveArrows();
         this.level = level;
         if(level <  levels.Length)
@@ -152,7 +188,6 @@ public class ArrowSpawner : MonoBehaviour
         //Debug.Log("Sparned New Arrow: Type: "+arrowType+", Speed: "+speed);
         int rotation = 0;
         Vector2Int spawnPos = Vector2Int.zero;
-        Vector2 velocity = Vector2.zero;
         Color color = Color.blue;
 
         if(arrowType == WAIT)
@@ -165,21 +200,25 @@ public class ArrowSpawner : MonoBehaviour
             case DIR_UP:
                 {
                     spawnPos.y = -distance;
+                    rotation = 0;
                     break;
                 }
             case DIR_RIGHT:
                 {
-                    spawnPos.x = -distance;
+                    spawnPos.x = distance;
+                    rotation = 90;
                     break;
                 }
             case DIR_DOWN:
                 {
                     spawnPos.y = distance;
+                    rotation = 180;
                     break;
                 }
             case DIR_LEFT:
                 {
-                    spawnPos.x = distance;
+                    spawnPos.x = -distance;
+                    rotation = 270;
                     break;
                 }
         }
@@ -210,9 +249,8 @@ public class ArrowSpawner : MonoBehaviour
         GameObject spawnedArrow = Instantiate(arrowPrefab, new Vector3(spawnPos.x, spawnPos.y), Quaternion.Euler(0, 0, rotation));
         SpriteRenderer spriteRenderer = spawnedArrow.GetComponent<SpriteRenderer>();
         spriteRenderer.color = color;
-        Rigidbody2D rb = spawnedArrow.GetComponent<Rigidbody2D>();
-        rb.velocity = velocity * speed;
         spawnedArrow.GetComponent<ArrowData>().id = id;
+        spawnedArrow.GetComponent <ArrowData>().spawnTime = Environment.TickCount;
         arrows.Add(spawnedArrow);
     }
 
@@ -223,7 +261,7 @@ public class ArrowSpawner : MonoBehaviour
             SpawnArrow(levels[level][i], speed, i);
             yield return new WaitForSeconds(delay);
         }
-        yield return new WaitForSeconds(distance/speed);
+        yield return new WaitForSeconds(distance/speed + (ANIMATION_LENGTH / 1000.0f));
         SwitchToLevel(level+1);
     }
 }

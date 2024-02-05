@@ -203,6 +203,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Barrier (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 4823452982405552239, guid: da65dcd7079909547821acab41e10ba4, type: 3}
+      propertyPath: m_Color.b
+      value: 0.99
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823452982405552239, guid: da65dcd7079909547821acab41e10ba4, type: 3}
+      propertyPath: m_Color.g
+      value: 0.358
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823452982405552239, guid: da65dcd7079909547821acab41e10ba4, type: 3}
+      propertyPath: m_Color.r
+      value: 0.96
+      objectReference: {fileID: 0}
     - target: {fileID: 8084374937307946191, guid: da65dcd7079909547821acab41e10ba4, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -358,8 +370,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 119, y: -41}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 210, y: -35}
+  m_SizeDelta: {x: 400, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &397841360
 MonoBehaviour:
@@ -381,9 +393,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Level: {level}
+  m_text: 'Press [SPACE] to Start!
 
-    Health: {health}'
+    Controls: [WASD]'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -471,6 +483,18 @@ PrefabInstance:
     - target: {fileID: 3943110957402556902, guid: da65dcd7079909547821acab41e10ba4, type: 3}
       propertyPath: m_Name
       value: Barrier (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823452982405552239, guid: da65dcd7079909547821acab41e10ba4, type: 3}
+      propertyPath: m_Color.b
+      value: 0.96
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823452982405552239, guid: da65dcd7079909547821acab41e10ba4, type: 3}
+      propertyPath: m_Color.g
+      value: 0.884
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823452982405552239, guid: da65dcd7079909547821acab41e10ba4, type: 3}
+      propertyPath: m_Color.r
+      value: 0.358
       objectReference: {fileID: 0}
     - target: {fileID: 8084374937307946191, guid: da65dcd7079909547821acab41e10ba4, type: 3}
       propertyPath: m_LocalPosition.x
@@ -785,7 +809,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7dea20725b41aa48947e760ae94a40a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  arrowPrefab: {fileID: 1194221051944512198, guid: 20899dc7e3eb7e841b4280684dd3a6f8, type: 3}
+  arrowPrefab: {fileID: 2941425515474796645, guid: 2d67c770d9f34004e9b03e1bc881d09e, type: 3}
   arrows: []
   level: 0
   distance: 10
@@ -804,6 +828,57 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1511266561
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1511266563}
+  - component: {fileID: 1511266562}
+  m_Layer: 0
+  m_Name: SoundManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1511266562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1511266561}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9b5c1b3a8dd1ea4db8c65025bd73ffe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sounds:
+  - {fileID: 8300000, guid: e74ed6a595307c547968d5fc1db53b93, type: 3}
+  - {fileID: 8300000, guid: e246e2c79b0b3294db49745bb6735fe5, type: 3}
+  - {fileID: 8300000, guid: b94d56b4f8d850640a03b948a6867c2a, type: 3}
+  - {fileID: 8300000, guid: 25c6bccf6bd85024b815c013bc0f802a, type: 3}
+  - {fileID: 8300000, guid: 6c21dc34b08f18d4c8fc4116fafdf37b, type: 3}
+  source: {fileID: 0}
+--- !u!4 &1511266563
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1511266561}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.5443677, y: 1.0665568, z: 0.0139337145}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1660793789
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -815,6 +890,18 @@ PrefabInstance:
     - target: {fileID: 3943110957402556902, guid: da65dcd7079909547821acab41e10ba4, type: 3}
       propertyPath: m_Name
       value: Barrier (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823452982405552239, guid: da65dcd7079909547821acab41e10ba4, type: 3}
+      propertyPath: m_Color.b
+      value: 0.99
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823452982405552239, guid: da65dcd7079909547821acab41e10ba4, type: 3}
+      propertyPath: m_Color.g
+      value: 0.358
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823452982405552239, guid: da65dcd7079909547821acab41e10ba4, type: 3}
+      propertyPath: m_Color.r
+      value: 0.476
       objectReference: {fileID: 0}
     - target: {fileID: 8084374937307946191, guid: da65dcd7079909547821acab41e10ba4, type: 3}
       propertyPath: m_LocalPosition.x
@@ -874,6 +961,7 @@ GameObject:
   - component: {fileID: 1742254230}
   - component: {fileID: 1742254232}
   - component: {fileID: 1742254231}
+  - component: {fileID: 1742254233}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1034,6 +1122,27 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!95 &1742254233
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1742254227}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: bf7ce191545f909488a8d7c50821a8a6, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1823471672
 GameObject:
   m_ObjectHideFlags: 0
@@ -1222,6 +1331,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Barrier
       objectReference: {fileID: 0}
+    - target: {fileID: 4823452982405552239, guid: da65dcd7079909547821acab41e10ba4, type: 3}
+      propertyPath: m_Color.b
+      value: 0.358
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823452982405552239, guid: da65dcd7079909547821acab41e10ba4, type: 3}
+      propertyPath: m_Color.g
+      value: 0.629
+      objectReference: {fileID: 0}
+    - target: {fileID: 4823452982405552239, guid: da65dcd7079909547821acab41e10ba4, type: 3}
+      propertyPath: m_Color.r
+      value: 0.96
+      objectReference: {fileID: 0}
     - target: {fileID: 8084374937307946191, guid: da65dcd7079909547821acab41e10ba4, type: 3}
       propertyPath: m_LocalPosition.x
       value: -4
@@ -1281,3 +1402,4 @@ SceneRoots:
   - {fileID: 427332757}
   - {fileID: 1660793789}
   - {fileID: 203144628}
+  - {fileID: 1511266563}

@@ -121,6 +121,7 @@ public class ShieldController : MonoBehaviour
 
 
         }
+        SoundManager.INSTANCE.PlaySound(SoundManager.NEW_SHIELD, 0.1f);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -132,6 +133,9 @@ public class ShieldController : MonoBehaviour
             if (instance.score % 10 == 0)
             {
                 PlayerManager.instance.GainHealth();
+            } else
+            {
+                SoundManager.INSTANCE.PlaySound(SoundManager.COLLIDE);
             }
             if (isClone)
             {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -17,6 +17,8 @@ public class PlayerManager : MonoBehaviour
     private long lastColorSwap = 0;
     private bool startHurt = false;
     private bool startHeal = false;
+
+    public static bool gameStarted = false;
 
     // Start is called before the first frame update
     void Start()
@@ -43,21 +45,43 @@ public class PlayerManager : MonoBehaviour
         }
 
         int level = ArrowSpawner.instance.level;
-        if(level >= ArrowSpawner.levels.Length)
+        if(gameStarted)
         {
-            healthText.text = "You Win!\nScore: "+health+"\nPress 'R' to restart.";
-            healthText.color = Color.green;
-        } else if(health <= 0)
-        {
-            healthText.text = "Level: " + (ArrowSpawner.instance.level + 1) + "\nHealth: " + health+"\nYou lose!\nPress 'R' to restart.";
-            ArrowSpawner.instance.StopCoroutine(ArrowSpawner.instance.arrowSpawnerRoutine);
-            ShieldController.instance.gameObject.SetActive(false);
-        } else
-        {
-            healthText.text = "Level: " + (ArrowSpawner.instance.level + 1) + "\nHealth: " + health;
-            ShieldController.instance.gameObject.SetActive(true);
+            if (level >= ArrowSpawner.levels.Length)
+            {
+                healthText.text = "You Win!\nScore: " + health + "\nPress [SPACE] to restart.";
+                healthText.color = Color.green;
+            }
+            else if (health <= 0)
+            {
+                healthText.text = "Level: " + (ArrowSpawner.instance.level + 1) + "\nHealth: " + health + "\nYou lose!\nPress [SPACE] to restart.";
+                healthText.color = Color.red;
+                ArrowSpawner.instance.StopCoroutine(ArrowSpawner.instance.arrowSpawnerRoutine);
+                ShieldController.instance.gameObject.SetActive(false);
+            }
+            else
+            {
+                healthText.text = "Level: " + (ArrowSpawner.instance.level + 1) + "\nHealth: " + health + HealthBar();
+                ShieldController.instance.gameObject.SetActive(true);
+            }
         }
-        
+    }
+
+    private String HealthBar()
+    {
+        String bar = "";
+        for(int i=0;i<10;i++)
+        {
+            if(ShieldController.instance.score%10 > i)
+            {
+                bar += "|";
+            } else
+            {
+                bar += ".";
+            }
+        }
+
+        return "\n[" + bar + "]";
     }
 
     private void SetColor(Color color, bool resetTimer)
@@ -87,6 +111,7 @@ public class PlayerManager : MonoBehaviour
     {
         health++;
         StartHeal();
+        SoundManager.INSTANCE.PlaySound(SoundManager.HEAL);
     }
 
     public void LoseHealth(Collider2D collision)
@@ -95,6 +120,7 @@ public class PlayerManager : MonoBehaviour
         health--;
         ShieldController.instance.score = 0;
         Destroy(collision.gameObject);
+        SoundManager.INSTANCE.PlaySound(SoundManager.HURT, 0.5f);
     }
 
     private void StartHeal()

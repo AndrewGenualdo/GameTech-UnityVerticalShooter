@@ -8,6 +8,9 @@ public class ArrowData : MonoBehaviour
     [SerializeField]
     public int id;
 
+    [SerializeField]
+    public int spawnTime;
+
     // Start is called before the first frame update
     void Start()
     {
