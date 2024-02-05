@@ -48,7 +48,11 @@ public class ArrowSpawner : MonoBehaviour
     const int LEFT_DOWN = 32; //15
     const int LEFT_LEFT = 33; //16
 
+    const int RANDOM = -8;
+
     //WAIT - 17-20
+
+    private static int[] ARROW_TYPES = { UP, UP_RIGHT, UP_DOWN, UP_LEFT, RIGHT_UP, RIGHT_RIGHT, RIGHT_DOWN, RIGHT_LEFT, DOWN_UP, DOWN_RIGHT, DOWN, DOWN_LEFT, LEFT_UP, LEFT_RIGHT, LEFT_DOWN, LEFT, WAIT, WAIT};
 
 
     public Coroutine arrowSpawnerRoutine;
@@ -113,8 +117,10 @@ public class ArrowSpawner : MonoBehaviour
         LEFT, RIGHT_UP, RIGHT_LEFT, DOWN_LEFT, LEFT_DOWN, UP_LEFT, DOWN_LEFT, LEFT_RIGHT, DOWN, RIGHT_UP, 
         LEFT_DOWN, LEFT_UP, RIGHT, RIGHT_DOWN, RIGHT_DOWN, DOWN_LEFT, UP_LEFT, LEFT_DOWN, LEFT_UP, RIGHT_LEFT}; //50 long
 
+    private static int[] level11 = { 500, 6, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM, RANDOM };
 
-    public static int[][] levels =  { level1, level2, level3, level4, level5, level6, level7, level8, level9, level10 };
+
+    public static int[][] levels =  { level1, level2, level3, level4, level5, level6, level7, level8, level9, level10, level11 };
 
     // Start is called before the first frame update
     void Start()
@@ -181,6 +187,12 @@ public class ArrowSpawner : MonoBehaviour
         {
             PlayerManager.gameStarted = true;
             PlayerManager.instance.health = 10;
+        } else if(level == 10)
+        {
+            for(int i = 2; i < levels[10].Length;i++)
+            {
+                levels[10][i] = RANDOM;
+            }
         } 
         else
         {
@@ -195,7 +207,7 @@ public class ArrowSpawner : MonoBehaviour
         if(level <  levels.Length)
         {
             arrowSpawnerRoutine = StartCoroutine(Co_SpawnArrows(levels[level][0] / 1000.0f, levels[level][1]));
-            Debug.Log("Switched to level: " + level);
+            //Debug.Log("Switched to level: " + level);
         }
     }
 
@@ -220,7 +232,13 @@ public class ArrowSpawner : MonoBehaviour
             return;
         }
 
-        switch(arrowType/10)
+        if (arrowType == RANDOM)
+        {
+            arrowType = ARROW_TYPES[UnityEngine.Random.Range(0, 18)];
+            levels[level][id] = arrowType;
+        }
+
+        switch (arrowType/10)
         {
             case DIR_UP:
                 {
