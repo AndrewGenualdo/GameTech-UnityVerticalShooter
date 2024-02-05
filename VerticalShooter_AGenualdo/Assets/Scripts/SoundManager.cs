@@ -7,6 +7,7 @@ using UnityEngine;
 public class SoundManager : MonoBehaviour
 {
 
+    //All sounds were generated at https://sfxr.me/
     public static int HURT = 0;
     public static int HEAL = 1;
     public static int NEW_SHIELD = 2;
